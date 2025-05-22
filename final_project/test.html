@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>次元街角 DimCorner</title>
+  <style>
+    :root {
+      --primary: #ff85a1;
+      --accent: #ffd3e0;
+      --background: #fff5f8;
+      --text: #333;
+      --highlight: #ff4f72;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Noto Sans TC', 'Segoe UI', sans-serif;
+      margin: 0; padding: 0;
+      background-color: var(--background);
+      color: var(--text);
+    }
+    .community-section h2 {
+      text-align: center;
+      color: #333;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    input[type="text"],
+    textarea {
+      padding: 0.8rem;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+    }
+
+    header {
+      padding: 2rem 1rem 1rem;
+      text-align: center;
+      background: linear-gradient(to right, var(--primary), var(--accent));
+      color: black;
+    }
+    h1 { font-size: 3rem; margin-bottom: 0.5rem; }
+    nav {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin: 1rem 0 2rem;
+    }
+    nav button {
+      padding: 0.6rem 1.2rem;
+      border: none;
+      border-radius: 20px;
+      background-color: white;
+      color: var(--primary);
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s ease;
+    }
+    nav button:hover, nav button.active {
+      background-color: var(--highlight);
+      color: white;
+    }
+    main {
+      max-width: 900px;
+      margin: auto;
+      padding: 0 1rem 3rem;
+    }
+    section { display: none; }
+    section.active { display: block; }
+    h2 {
+      color: var(--primary);
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .card, .category, .post {
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      transition: transform 0.2s;
+    }
+    .card:hover, .category:hover, .post:hover {
+      transform: translateY(-4px);
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 9999;
+      left: 0; top: 0;
+      width: 100%; height: 100%;
+      background-color: rgba(0, 0, 0, 0.6);
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+      background: white;
+      padding: 2rem;
+      border-radius: 10px;
+      max-width: 500px;
+      margin: auto;
+      position: relative;
+    }
+    .modal .close {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+    .comment-input {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+    .comment-input input {
+      flex: 1;
+      padding: 0.4rem 0.6rem;
+      border-radius: 10px;
+      border: 1px solid var(--accent);
+    }
+    .comment-input button {
+      background-color: var(--primary);
+      border: none;
+      color: white;
+      padding: 0.4rem 1rem;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    .like-btn {
+      cursor: pointer;
+      margin-top: 0.5rem;
+      color: var(--highlight);
+      font-weight: bold;
+    }
+    .like-btn.liked {
+      color: gray;
+      pointer-events: none;
+      opacity: 0.6;
+    }
+    footer {
+      text-align: center;
+      padding: 1rem;
+      font-size: 0.9rem;
+      color: #999;
+      margin-top: 3rem;
+    }
+    .city-switcher {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    .city-switcher button {
+      margin: 0 0.5rem;
+      padding: 0.4rem 1rem;
+      border-radius: 10px;
+      border: 1px solid var(--primary);
+      background: white;
+      color: var(--primary);
+      cursor: pointer;
+    }
+    .city-switcher button.active {
+      background: var(--primary);
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1><b>次元街角</b></h1>
+    <p class="subtitle"><b>在夢與現實之間，遇見同樣熱愛的你。</b></p>
+    <nav>
+      <button class="active" data-target="home">首頁</button>
+      <button data-target="events">活動資訊</button>
+      <button data-target="commissions">專業委託</button>
+      <button data-target="community">交流區</button>
+    </nav>
+  </header>
+
+  <main>
+    <!-- 首頁 -->
+    <section id="home" class="active">
+      <h2>歡迎來到次元街角</h2>
+      <p style="text-align: left; max-width: 800px; margin: auto;">
+        《次元街角》是一個專為動漫愛好者打造的交流平台，致力於聚集多元次文化族群，無論你是 Coser、攝影師、夢女、繪師、同人創作者，還是純粹熱愛作品的粉絲，都能在此找到共鳴與夥伴。
+        平台設有多個互動專區，提供創作分享、心得交流、委託合作及最新活動資訊整理等功能。網站特設活動專欄，整合全台年度動漫展演與同人活動資訊，方便用戶查找與規劃參與行程。
+        <br>
+        《次元街角》不僅是一個資訊平台，更是一個讓「熱愛成為連結」的社群基地，讓每一位身處二次元世界的愛好者，在虛擬空間中找到歸屬與舞台。
+      </p>
+      <br>
+      <div class="grid">
+        <div class="card">
+          <h3>推薦貼文</h3>
+          <p>精選創作與心得分享文章。</p>
+        </div>
+        <div class="card">
+          <h3>人氣創作</h3>
+          <p>最多人瀏覽與點讚的熱門內容。</p>
+        </div>
+        <div class="card">
+          <h3>最新委託推薦</h3>
+          <p>精選優質委託者與新進創作者推薦！</p>
+        </div>
+      </div>
+ 
+    </section>
+
+    <!-- 活動資訊 -->
+    <section id="events">
+    <h2>活動資訊欄</h2>
+    <div class="city-switcher">
+      <button onclick="switchCity('taipei')" class="active">台北</button>
+      <button onclick="switchCity('taichung')">台中</button>
+      <button onclick="switchCity('kaohsiung')">高雄</button>
+    </div>
+    <div id="taipei" class="event-city active">
+      <div class="card">
+        <h3>2025 台北國際動漫節</h3>
+        <p><strong>地點：</strong>南港展覽館一館</p>
+        <p><strong>時間：</strong>2025年2月6日 - 2月10日</p>
+        <p><a href="#">活動官網連結</a></p>
+      </div>
+    </div>
+    <div id="taichung" class="event-city" style="display:none">
+      <div class="card">
+        <h3>2025 台中動漫力</h3>
+        <p><strong>地點：</strong>大台中國際會展中心</p>
+        <p><strong>時間：</strong>2025年6月15日 - 6月16日</p>
+        <p><a href="#">活動官網連結</a></p>
+      </div>
+    </div>
+    <div id="kaohsiung" class="event-city" style="display:none">
+      <div class="card">
+        <h3>2025 高雄CWT</h3>
+        <p><strong>地點：</strong>高雄國際會議中心</p>
+        <p><strong>時間：</strong>2025年9月7日 - 9月8日</p>
+        <p><a href="#">活動官網連結</a></p>
+      </div>
+    </div>
+  </section>
+
+    <!-- 專業委託 -->
+    <section id="commissions">
+    <h2>專業委託區</h2>
+    <div class="city-switcher">
+        <button onclick="switchCategory('photographer')" class="active">攝影師</button>
+        <button onclick="switchCategory('coser')">COSER</button>
+        <button onclick="switchCategory('wig')">假髮造型師</button>
+        <button onclick="switchCategory('makeup')">化妝師</button>
+        <button onclick="switchCategory('dream')">夢女委託</button>
+        <button onclick="switchCategory('artist')">繪師</button>
+    </div>
+
+    <div id="photographer" class="category-section active">
+        <div class="card">
+        <h3>攝影師 - 小光</h3>
+        <p>擅長室外光影與人像攝影，提供外拍與修圖服務。</p>
+        <button class="btn" onclick="openModal('modalPhotographer')">查看詳情</button>
+        </div>
+
+        <div class="card">
+        <h3>攝影師 - 小芸</h3>
+        <p>擅長棚拍與人像捕捉，支援場地布光。</p>
+        <button class="btn" onclick="openModal('modalPhotographerYun')">查看詳情</button>
+    </div>
+    </div>
+    
+
+    <div id="coser" class="category-section" style="display: none;">
+        <div class="card">
+        <h3>COSER - 阿璃</h3>
+        <p>擅長日系與偶像系角色，接受合作拍攝與商業出席。</p>
+        <button class="btn" onclick="openModal('modalCoser')">查看詳情</button>
+        </div>
+    </div>
+
+    <div id="wig" class="category-section" style="display: none;">
+        <div class="card">
+        <h3>假髮造型師 - 小彤</h3>
+        <p>承接角色造型假髮訂製，支援郵寄與現場服務。</p>
+        <button class="btn" onclick="openModal('modalWig')">查看詳情</button>
+        </div>
+    </div>
+
+    <div id="makeup" class="category-section" style="display: none;">
+        <div class="card">
+        <h3>化妝師 - 小K</h3>
+        <p>Cosplay 專業妝容，台北接案，可外出與場地合作。</p>
+        <button class="btn" onclick="openModal('modalMakeup')">查看詳情</button>
+        </div>
+    </div>
+
+    <div id="dream" class="category-section" style="display: none;">
+        <div class="card">
+        <h3>夢女委託 - 星夜</h3>
+        <p>提供代寫信件、劇情段落、對話模擬等夢女服務。</p>
+        <button class="btn" onclick="openModal('modalDream')">查看詳情</button>
+        </div>
+    </div>
+
+    <div id="artist" class="category-section" style="display: none;">
+        <div class="card">
+        <h3>繪師 - 小A</h3>
+        <p>提供原創/同人插畫，風格多變，交件迅速。</p>
+        <button class="btn" onclick="openModal('modalArtist')">查看詳情</button>
+        </div>
+    </div>
+
+    <!-- 攝影師 -->
+    <div id="modalPhotographer" class="modal">
+        <div class="modal-content">
+        <span class="close" onclick="closeModal('modalPhotographer')">&times;</span>
+        <h3>攝影師 - 小光</h3>
+        <p><strong>介紹：</strong>五年攝影經驗，作品刊登於多家雜誌。</p>
+        <p><strong>作品集：</strong><a href="#">點此查看</a></p>
+        <p><strong>報價：</strong>半日 NT$1500 / 全日 NT$2500</p>
+        <p><strong>聯絡：</strong>IG: @photo_ko</p>
+        <hr />
+        <h4>留言：</h4>
+        <textarea id="commentPhotographer" rows="3" placeholder="留下評價或問題..." style="width: 100%;"></textarea>
+        <button onclick="submitModalComment('Photographer')">送出留言</button>
+        <div id="modalCommentsPhotographer" style="margin-top: 1rem;"></div>
+        </div>
+    </div>
+    <div id="modalPhotographerYun" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('modalPhotographerYun')">&times;</span>
+            <h3>攝影師 - 小芸</h3>
+            <p><strong>介紹：</strong>專注於棚拍與舞台攝影。</p>
+            <p><strong>作品集：</strong><a href="#">https://link.to/portfolio</a></p>
+            <p><strong>報價：</strong>基本 NT$1800，含修圖與電子檔。</p>
+            <p><strong>聯絡：</strong>IG: @yun_photo</p>
+            <hr />
+            <h4>留言：</h4>
+            <textarea id="commentPhotographerYun" rows="3" placeholder="留下評價或問題..." style="width: 100%;"></textarea>
+            <button onclick="submitModalComment('PhotographerYun')">送出留言</button>
+            <div id="modalCommentsPhotographerYun" style="margin-top: 1rem;"></div>
+        </div>
+    </div>
+
+
+    <!-- 繪師 -->
+    <div id="modalArtist" class="modal">
+        <div class="modal-content">
+        <span class="close" onclick="closeModal('modalArtist')">&times;</span>
+        <h3>繪師 - 小A</h3>
+        <p><strong>自我介紹：</strong>插畫接案三年經驗，作品風格偏日系。</p>
+        <p><strong>作品集：</strong><a href="#">點此查看</a></p>
+        <p><strong>報價方案：</strong>頭像 NT$500 / 半身 NT$800 / 全身 NT$1200</p>
+        <p><strong>聯絡方式：</strong>IG: @artistA</p>
+        <hr />
+        <h4>留言：</h4>
+        <textarea id="commentArtist" rows="3" placeholder="留下您的評價或問題..." style="width: 100%;"></textarea>
+        <button onclick="submitModalComment('Artist')">送出留言</button>
+        <div id="modalCommentsArtist" style="margin-top: 1rem;"></div>
+        </div>
+    </div>
+    
+    </section>
+
+
+     <!-- 交流區 -->
+    <section id="community">
+      <h2>交流區（社群貼文系統）</h2>
+      <div class="card">
+        <input type="text" id="postTitle" placeholder="貼文標題" />
+        <input type="text" id="postTags" placeholder="主題標籤（如：#心得、#展示）"/>
+        <textarea id="postContent" rows="3" placeholder="貼文內容"></textarea><br>
+        <button onclick="createPost()">發表</button>
+      </div>
+      <div id="postList"></div>
+      <div style="text-align: center; margin-top: 2rem;">
+      <button onclick="clearData()" style="background-color: #ff4f72; color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 10px; cursor: pointer;">
+        清除所有紀錄（貼文與留言）
+      </button>
+    </section>
+  </main>
+
+  <footer>
+    &copy; 2025 次元街角 DimCorner — All rights reserved.
+  </footer>
+
+<script>
+  // 頁籤切換邏輯
+  document.querySelectorAll("nav button").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
+      document.querySelectorAll("main section").forEach(s => s.classList.remove("active"));
+      btn.classList.add("active");
+      document.getElementById(btn.dataset.target).classList.add("active");
+    });
+  });
+
+  // 活動城市切換
+  function switchCity(cityId) {
+    document.querySelectorAll(".event-city").forEach(e => e.style.display = "none");
+    document.querySelectorAll(".city-switcher button").forEach(b => b.classList.remove("active"));
+    document.getElementById(cityId).style.display = "block";
+    event.target.classList.add("active");
+  }
+
+  // 委託分類切換
+  function switchCategory(categoryId) {
+    document.querySelectorAll(".category-section").forEach(e => e.style.display = "none");
+    document.querySelectorAll(".city-switcher button").forEach(b => b.classList.remove("active"));
+    document.getElementById(categoryId).style.display = "block";
+    event.target.classList.add("active");
+  }
+
+  // Modal 開啟與關閉
+  function openModal(id) {
+    document.getElementById(id).style.display = "flex";
+  }
+  function closeModal(id) {
+    document.getElementById(id).style.display = "none";
+  }
+
+  // Modal 留言儲存
+  function submitModalComment(type) {
+    const textarea = document.getElementById(`comment${type}`);
+    const comment = textarea.value.trim();
+    if (!comment) return;
+    const list = document.getElementById(`modalComments${type}`);
+    const p = document.createElement("p");
+    p.textContent = comment;
+    list.appendChild(p);
+    textarea.value = "";
+    saveData(); // 自動存進 localStorage
+  }
+
+  // ---------- 社群貼文區 ----------
+  const postList = document.getElementById("postList");
+
+  function createPost() {
+    const title = document.getElementById("postTitle").value.trim();
+    const tags = document.getElementById("postTags").value.trim();
+    const content = document.getElementById("postContent").value.trim();
+
+    if (!title || !content) return alert("標題與內容為必填欄位");
+
+    const post = {
+      id: Date.now(),
+      title, tags, content,
+      likes: 0,
+      comments: [],
+      liked: false,
+      saved: false
+    };
+
+    posts.unshift(post);
+    renderPosts();
+    saveData();
+
+    // 清空輸入欄
+    document.getElementById("postTitle").value = "";
+    document.getElementById("postTags").value = "";
+    document.getElementById("postContent").value = "";
+  }
+
+  function renderPosts() {
+    postList.innerHTML = "";
+    posts.forEach(post => {
+      const card = document.createElement("div");
+      card.className = "post";
+      card.innerHTML = `
+        <h3>${post.title}</h3>
+        <p style="color:#999">${post.tags}</p>
+        <p>${post.content}</p>
+        <div class="like-btn ${post.liked ? 'liked' : ''}" onclick="toggleLike(${post.id})">
+          👍 ${post.likes} ${post.liked ? '(已按讚)' : ''}
+        </div>
+        <div class="like-btn" onclick="toggleSave(${post.id})">
+          📌 ${post.saved ? '已收藏' : '收藏'}
+        </div>
+        <div class="comment-input">
+          <input type="text" placeholder="留言..." onkeydown="handleCommentKey(event, ${post.id})"/>
+          <button onclick="addComment(${post.id}, this.previousElementSibling.value)">送出</button>
+        </div>
+        <div>
+          ${post.comments.map((c, i) => `
+            <p style="margin-left:1rem;">
+                💬 ${c}
+                <span onclick="deleteComment(${post.id}, ${i})" style="color:red; cursor:pointer; margin-left:10px;">🗑️</span>
+            </p>
+            `).join("")}
+
+        </div>
+      `;
+      postList.appendChild(card);
+    });
+  }
+
+  function toggleLike(id) {
+    const post = posts.find(p => p.id === id);
+    if (!post || post.liked) return;
+    post.liked = true;
+    post.likes++;
+    renderPosts();
+    saveData();
+  }
+
+  function toggleSave(id) {
+    const post = posts.find(p => p.id === id);
+    if (!post) return;
+    post.saved = !post.saved;
+    renderPosts();
+    saveData();
+  }
+
+  function addComment(id, text) {
+    const post = posts.find(p => p.id === id);
+    if (!post || !text.trim()) return;
+    post.comments.push(text.trim());
+    renderPosts();
+    saveData();
+  }
+  function deleteComment(postId, commentIndex) {
+  if (!confirm("確定要刪除這則留言嗎？")) return;
+  const post = posts.find(p => p.id === postId);
+  if (!post) return;
+  post.comments.splice(commentIndex, 1);
+  renderPosts();
+  saveData();
+}
+
+
+  function handleCommentKey(e, id) {
+    if (e.key === "Enter") {
+      addComment(id, e.target.value);
+    }
+  }
+
+  // 本地儲存（localStorage）
+  let posts = JSON.parse(localStorage.getItem("communityPosts") || "[]");
+
+  function saveData() {
+    localStorage.setItem("communityPosts", JSON.stringify(posts));
+  }
+
+  function clearData() {
+    if (confirm("確定要清除所有貼文與留言？此動作無法復原。")) {
+      posts = [];
+      saveData();
+      renderPosts();
+      document.querySelectorAll('[id^="modalComments"]').forEach(el => el.innerHTML = '');
+    }
+  }
+
+  renderPosts();
+</script>
+
+
+</body>
+</html>
